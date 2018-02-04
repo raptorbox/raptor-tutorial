@@ -1,10 +1,15 @@
 package createnet.raptorbox.quickstart;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.createnet.raptor.models.app.App;
+import org.createnet.raptor.models.app.AppRole;
+import org.createnet.raptor.models.auth.User;
 import org.createnet.raptor.models.objects.Device;
 import org.createnet.raptor.models.objects.Stream;
 import org.createnet.raptor.models.query.DeviceQuery;
+import org.createnet.raptor.sdk.PageResponse;
 import org.createnet.raptor.sdk.Raptor;
 
 import createnet.raptorbox.quickstart.Utils.Raptorbox;
@@ -51,13 +56,13 @@ public class RaptorTutorial {
 		// Search devices by device name
 		quickStart.searchByName(dev);
 
-		// Search device by user id 
+		// Search device by user id
 		quickStart.searchByUserId(dev);
 
 		// records
 		Records records = new Records(dev);
 		Stream stream = records.addStream();
-		
+
 		// Push record in the device
 		records.pushData(stream);
 
@@ -69,6 +74,9 @@ public class RaptorTutorial {
 
 		// Drop records
 		records.dropData(stream);
+
+		// App tutorial
+		quickStart.appTutorial(raptor);
 	}
 
 	// create device
@@ -161,9 +169,9 @@ public class RaptorTutorial {
 	// list devices
 	public void list() {
 		Raptor raptor = Raptorbox.getRaptor();
-		List<Device> list = raptor.Inventory().list();
+		PageResponse<Device> list = raptor.Inventory().list();
 
-		System.out.println(list.size());
+		System.out.println(list.getTotalElements());
 	}
 
 	// search device by name
@@ -173,10 +181,10 @@ public class RaptorTutorial {
 
 		DeviceQuery q = new DeviceQuery();
 		q.name.contains("test");
-		List<Device> results = raptor.Inventory().search(q);
+		PageResponse<Device> results = raptor.Inventory().search(q);
 
-		if (results != null && results.size() > 0) {
-			Device dev = results.get(0);
+		if (results != null && results.getTotalElements() > 0) {
+			Device dev = results.getContent().get(0);
 			System.out.println(dev.toJSON().toString());
 		}
 
@@ -192,12 +200,56 @@ public class RaptorTutorial {
 		DeviceQuery q = new DeviceQuery();
 		q.userId(userId);
 
-		List<Device> results = raptor.Inventory().search(q);
+		PageResponse<Device> results = raptor.Inventory().search(q);
 
-		if (results != null && results.size() > 0) {
-			Device dev = results.get(0);
+		if (results != null && results.getTotalElements() > 0) {
+			Device dev = results.getContent().get(0);
 			System.out.println(dev.getUserId());
 		}
+
+	}
+
+	public void appTutorial(Raptor raptor) {
+		// Create User
+		User user = raptor.Admin().User().create("test_user1", "test_user1", "test_user1" + "@test.raptor.local");
+		System.out.println("Created user test_user1 : test_user1 with uuid " + user.getId());
+
+		// List application owned by user or belong to user
+		PageResponse<App> pager = raptor.App().list();
+		List<App> list = pager.getContent();
+		System.out.println("found apps " + list.size());
+
+		// Create an app
+		App app = new App();
+		app.setName("test_" + System.currentTimeMillis());
+		app.setUserId(raptor.Auth().getUser().getId());
+		App a = raptor.App().create(app);
+
+		// Update app, add users and roles to the app
+		List<String> permissions = new ArrayList<>();
+		permissions.add("admin_device");
+		permissions.add("read_stream");
+		AppRole role1 = new AppRole();
+		role1.setName("role1");
+		role1.addPermissions(permissions);
+
+		List<String> permissions2 = new ArrayList<>();
+		permissions2.add("read_user");
+		AppRole role2 = new AppRole();
+		role2.setName("role2");
+		role2.addPermissions(permissions2);
+		a.addRole(role1);
+		a.addRole(role2);
+		a.addUser(user, role1.getName());
+		raptor.App().update(a);
+		
+		// read an application
+		App application = raptor.App().load(app.getId());
+		System.out.println("Application deleted " + application.getName());
+		
+		// delete the application
+		raptor.App().delete(a);
+		System.out.println("Application deleted");
 
 	}
 
