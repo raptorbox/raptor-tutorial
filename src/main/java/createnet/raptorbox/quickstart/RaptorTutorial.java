@@ -77,6 +77,16 @@ public class RaptorTutorial {
 
 		// App tutorial
 		quickStart.appTutorial(raptor);
+		
+		// Create user with owner Id
+		User u = new User();
+		u.setUsername("test_user");
+		u.setPassword("test_user");
+		u.setEmail("test_user" + "@test.raptor.local");
+		u.setOwnerId(raptor.Auth().getUser().getId());
+		
+		User user = raptor.Admin().User().create(u);
+		System.out.println("Created user test_user1 : test_user1 with uuid " + user.getId() + " ownerId: " + user.getOwnerId());
 	}
 
 	// create device
