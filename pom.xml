@@ -13,12 +13,23 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
-	
+
+	<repositories>
+		<repository>
+			<id>raptor-sdk</id>
+			<url>https://raw.github.com/raptorbox/raptor/repository/</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+			</snapshots>
+		</repository>
+	</repositories>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.createnet</groupId>
-			<artifactId>raptor-sdk</artifactId>
-			<version>1.0</version>
+			<artifactId>raptor-sdk-with-dependencies</artifactId>
+			<version>1.5.1</version>
 		</dependency>
 	</dependencies>
 </project>

@@ -1,16 +1,21 @@
 package createnet.raptorbox.quickstart;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.createnet.raptor.models.app.App;
 import org.createnet.raptor.models.app.AppRole;
 import org.createnet.raptor.models.auth.User;
 import org.createnet.raptor.models.objects.Device;
 import org.createnet.raptor.models.objects.Stream;
+import org.createnet.raptor.models.query.AppQuery;
 import org.createnet.raptor.models.query.DeviceQuery;
 import org.createnet.raptor.sdk.PageResponse;
 import org.createnet.raptor.sdk.Raptor;
+
+import com.mongodb.util.Hash;
 
 import createnet.raptorbox.quickstart.Utils.Raptorbox;
 
@@ -77,16 +82,15 @@ public class RaptorTutorial {
 
 		// App tutorial
 		quickStart.appTutorial(raptor);
+
+		// Create user with default role
+		quickStart.createUserWithDefaultRole(raptor);
 		
+		// Search and delete the user
+		quickStart.searchAndDeleteUser(raptor);
+
 		// Create user with owner Id
-		User u = new User();
-		u.setUsername("test_user");
-		u.setPassword("test_user");
-		u.setEmail("test_user" + "@test.raptor.local");
-		u.setOwnerId(raptor.Auth().getUser().getId());
-		
-		User user = raptor.Admin().User().create(u);
-		System.out.println("Created user test_user1 : test_user1 with uuid " + user.getId() + " ownerId: " + user.getOwnerId());
+		quickStart.createUserWithOwnerId(raptor.Auth().getUser().getId(), raptor);
 	}
 
 	// create device
@@ -221,7 +225,12 @@ public class RaptorTutorial {
 
 	public void appTutorial(Raptor raptor) {
 		// Create User
-		User user = raptor.Admin().User().create("test_user1", "test_user1", "test_user1" + "@test.raptor.local");
+		User u = new User();
+		u.setUsername("test_user");
+		u.setPassword("test_user");
+		u.setEmail("test_user" + "@test.raptor.local");
+		u.setOwnerId(raptor.Auth().getUser().getId());
+		User user = raptor.Admin().User().create(u);
 		System.out.println("Created user test_user1 : test_user1 with uuid " + user.getId());
 
 		// List application owned by user or belong to user
@@ -252,15 +261,74 @@ public class RaptorTutorial {
 		a.addRole(role2);
 		a.addUser(user, role1.getName());
 		raptor.App().update(a);
-		
+
+		// addDevice(app.getId(), raptor);
+
 		// read an application
 		App application = raptor.App().load(app.getId());
-		System.out.println("Application deleted " + application.getName());
-		
+		System.out.println("Application " + application.getName());
+
 		// delete the application
 		raptor.App().delete(a);
 		System.out.println("Application deleted");
 
+		// delete test user
+		raptor.Admin().User().delete(user.getId(), raptor.Auth().getUser().getId());
+		System.out.println("Test user deleted");
+
+		AppQuery appQuery = new AppQuery();
+		appQuery.name.contains("test");
+		PageResponse<App> pageResponse = raptor.App().search(appQuery);
+
+		System.out.println("Applications found " + pageResponse.getTotalElements());
+		pageResponse.getContent().forEach(item -> System.out.println("Application: " + item.getName()));
+
+	}
+
+	public void addDevice(String appId, Raptor raptor) {
+
+		Device dev = new Device();
+		dev.name("test_dev");
+		dev.domain(appId);
+
+		// validating device
+		dev.validate();
+		raptor.Inventory().create(dev);
+	}
+
+	public void createUserWithOwnerId(String id, Raptor raptor) {
+		User u = new User();
+		u.setUsername("test_user1");
+		u.setPassword("test_user1");
+		u.setEmail("test_user1" + "@test.raptor.local");
+		u.setOwnerId(id);
+
+		User user = raptor.Admin().User().create(u);
+		System.out.println(
+				"Created user test_user : test_user with uuid " + user.getId() + " ownerId: " + user.getOwnerId());
+	}
+
+	public void createUserWithDefaultRole(Raptor raptor) {
+		User newUser = new User();
+		newUser.setUsername("test_user_with_roles");
+		newUser.setEmail("test_user_with_roles@raptor.local");
+		newUser.setPassword("test_user_with_roles");
+		newUser.setOwnerId(raptor.Auth().getUser().getId());
+		raptor.Admin().User().create(newUser);
+	}
+	
+	public void searchAndDeleteUser(Raptor raptor) {
+		Map<String, Object> page = new HashMap<>();
+		page.put("page", 1);
+		page.put("size", 25);
+		Map<String, Object> query = new HashMap<>();
+		query.put("username", "test_user_with_roles");
+		PageResponse<User> list = raptor.Admin().User().list(query, page);
+		for(User u: list.getContent()) {
+			if(u.getUsername().equals("test_user_with_roles")) {
+				raptor.Admin().User().delete(u.getId());
+			}
+		}
 	}
 
 }

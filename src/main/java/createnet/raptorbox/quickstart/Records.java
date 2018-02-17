@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.createnet.raptor.models.data.RecordSet;
-import org.createnet.raptor.models.data.ResultSet;
 import org.createnet.raptor.models.objects.Device;
 import org.createnet.raptor.models.objects.Stream;
+import org.createnet.raptor.sdk.PageResponse;
 import org.createnet.raptor.sdk.Raptor;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 
@@ -65,18 +65,18 @@ public class Records {
 
 		Raptor raptor = Raptorbox.getRaptor();
 
-		ResultSet bResults = raptor.Stream().pull(s);
-		System.out.println("Before pushing records: " + bResults.size());
+		PageResponse<RecordSet> bResults = raptor.Stream().pull(s);
+		System.out.println("Before pushing records: " + bResults.getTotalElements());
 		
 		createRecordSet(s, 10);
 		
-		ResultSet results = raptor.Stream().pull(s);
-		System.out.println("After pushing records: " + results.size());
+		PageResponse<RecordSet> results = raptor.Stream().pull(s);
+		System.out.println("After pushing records: " + results.getTotalElements());
 
 		raptor.Stream().delete(s);
 
-		ResultSet dResults = raptor.Stream().pull(s);
-		System.out.println("After deleting records: " + dResults.size());
+		PageResponse<RecordSet> dResults = raptor.Stream().pull(s);
+		System.out.println("After deleting records: " + dResults.getTotalElements());
 	}
 
 	public void pullRecords(Stream s) {
@@ -86,8 +86,8 @@ public class Records {
 		int qt = 5;
 		createRecordSet(s, qt);
 
-		ResultSet results = raptor.Stream().pull(s);
-		System.out.println("Pull records: " + results.size());
+		PageResponse<RecordSet> results = raptor.Stream().pull(s);
+		System.out.println("Pull records: " + results.getTotalElements());
 	}
 
 	public void pullLastUpdate(Stream s) {
