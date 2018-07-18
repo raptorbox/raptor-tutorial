@@ -15,8 +15,6 @@ import org.createnet.raptor.models.query.DeviceQuery;
 import org.createnet.raptor.sdk.PageResponse;
 import org.createnet.raptor.sdk.Raptor;
 
-import com.mongodb.util.Hash;
-
 import createnet.raptorbox.quickstart.Utils.Raptorbox;
 
 /**
@@ -62,7 +60,10 @@ public class RaptorTutorial {
 		quickStart.searchByName(dev);
 
 		// Search device by user id
-		quickStart.searchByUserId(dev);
+		quickStart.searchByUserId();
+
+		// Search device by user id
+		quickStart.searchByAppId();
 
 		// records
 		Records records = new Records(dev);
@@ -85,7 +86,7 @@ public class RaptorTutorial {
 
 		// Create user with default role
 		quickStart.createUserWithDefaultRole(raptor);
-		
+
 		// Search and delete the user
 		quickStart.searchAndDeleteUser(raptor);
 
@@ -205,7 +206,7 @@ public class RaptorTutorial {
 	}
 
 	// search devices by userId
-	public void searchByUserId(Device device) {
+	public void searchByUserId() {
 
 		Raptor raptor = Raptorbox.getRaptor();
 
@@ -221,6 +222,21 @@ public class RaptorTutorial {
 			System.out.println(dev.getUserId());
 		}
 
+	}
+
+	// search devices by userId
+	public void searchByAppId() {
+
+		Raptor raptor = Raptorbox.getRaptor();
+		
+		DeviceQuery q = new DeviceQuery();
+		q.domain.match("=================app id===============");
+		
+		System.out.println("Searching for " + q.toJSON().toString());
+
+		PageResponse<Device> results = raptor.Inventory().search(q);
+
+		System.out.println("Search devices by APP Id: " + results.getContent().size());
 	}
 
 	public void appTutorial(Raptor raptor) {
@@ -245,14 +261,14 @@ public class RaptorTutorial {
 		App a = raptor.App().create(app);
 
 		// Update app, add users and roles to the app
-		List<String> permissions = new ArrayList<>();
+		List<String> permissions = new ArrayList<String>();
 		permissions.add("admin_device");
 		permissions.add("read_stream");
 		AppRole role1 = new AppRole();
 		role1.setName("role1");
 		role1.addPermissions(permissions);
 
-		List<String> permissions2 = new ArrayList<>();
+		List<String> permissions2 = new ArrayList<String>();
 		permissions2.add("read_user");
 		AppRole role2 = new AppRole();
 		role2.setName("role2");
@@ -316,16 +332,16 @@ public class RaptorTutorial {
 		newUser.setOwnerId(raptor.Auth().getUser().getId());
 		raptor.Admin().User().create(newUser);
 	}
-	
+
 	public void searchAndDeleteUser(Raptor raptor) {
-		Map<String, Object> page = new HashMap<>();
+		Map<String, Object> page = new HashMap<String, Object>();
 		page.put("page", 1);
 		page.put("size", 25);
-		Map<String, Object> query = new HashMap<>();
+		Map<String, Object> query = new HashMap<String, Object>();
 		query.put("username", "test_user_with_roles");
 		PageResponse<User> list = raptor.Admin().User().list(query, page);
-		for(User u: list.getContent()) {
-			if(u.getUsername().equals("test_user_with_roles")) {
+		for (User u : list.getContent()) {
+			if (u.getUsername().equals("test_user_with_roles")) {
 				raptor.Admin().User().delete(u.getId());
 			}
 		}

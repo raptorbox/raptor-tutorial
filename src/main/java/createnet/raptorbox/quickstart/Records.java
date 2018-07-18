@@ -36,7 +36,7 @@ public class Records {
 		
 		Raptor raptor = Raptorbox.getRaptor();
 
-		List<RecordSet> records = new ArrayList<>();
+		List<RecordSet> records = new ArrayList<RecordSet>();
 		for (int i = 0; i < length; i++) {
 			
 			RecordSet r = new RecordSet(stream).channel("number", i).channel("string", "Hello world " + i).channel("boolean", true)
