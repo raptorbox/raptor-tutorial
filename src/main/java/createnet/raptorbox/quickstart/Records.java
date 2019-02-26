@@ -3,7 +3,7 @@ package createnet.raptorbox.quickstart;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.createnet.raptor.models.data.RecordSet;
+import org.createnet.raptor.models.objects.RecordSet;
 import org.createnet.raptor.models.objects.Device;
 import org.createnet.raptor.models.objects.Stream;
 import org.createnet.raptor.sdk.PageResponse;
@@ -36,14 +36,13 @@ public class Records {
 		
 		Raptor raptor = Raptorbox.getRaptor();
 
-		List<RecordSet> records = new ArrayList<>();
+		List<RecordSet> records = new ArrayList<RecordSet>();
 		for (int i = 0; i < length; i++) {
-			
 			RecordSet r = new RecordSet(stream).channel("number", i).channel("string", "Hello world " + i).channel("boolean", true)
 					.location(new GeoJsonPoint(11.45, 45.11));
-			System.out.println(r.toJson().toString());
-			
 			try {
+				System.out.println(r.toJson().toString());
+				
 				Thread.sleep(1000*2);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block

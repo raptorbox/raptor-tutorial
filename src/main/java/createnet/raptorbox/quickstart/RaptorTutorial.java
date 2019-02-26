@@ -15,8 +15,6 @@ import org.createnet.raptor.models.query.DeviceQuery;
 import org.createnet.raptor.sdk.PageResponse;
 import org.createnet.raptor.sdk.Raptor;
 
-import com.mongodb.util.Hash;
-
 import createnet.raptorbox.quickstart.Utils.Raptorbox;
 
 /**
@@ -245,14 +243,14 @@ public class RaptorTutorial {
 		App a = raptor.App().create(app);
 
 		// Update app, add users and roles to the app
-		List<String> permissions = new ArrayList<>();
+		List<String> permissions = new ArrayList<String>();
 		permissions.add("admin_device");
 		permissions.add("read_stream");
 		AppRole role1 = new AppRole();
 		role1.setName("role1");
 		role1.addPermissions(permissions);
 
-		List<String> permissions2 = new ArrayList<>();
+		List<String> permissions2 = new ArrayList<String>();
 		permissions2.add("read_user");
 		AppRole role2 = new AppRole();
 		role2.setName("role2");
@@ -318,10 +316,10 @@ public class RaptorTutorial {
 	}
 	
 	public void searchAndDeleteUser(Raptor raptor) {
-		Map<String, Object> page = new HashMap<>();
+		Map<String, Object> page = new HashMap<String, Object>();
 		page.put("page", 1);
 		page.put("size", 25);
-		Map<String, Object> query = new HashMap<>();
+		Map<String, Object> query = new HashMap<String, Object>();
 		query.put("username", "test_user_with_roles");
 		PageResponse<User> list = raptor.Admin().User().list(query, page);
 		for(User u: list.getContent()) {

@@ -2,8 +2,8 @@ package createnet.raptorbox.quickstart.client;
 
 import java.io.IOException;
 
-import org.createnet.raptor.models.data.RecordSet;
 import org.createnet.raptor.models.objects.Device;
+import org.createnet.raptor.models.objects.RecordSet;
 import org.createnet.raptor.models.objects.Stream;
 import org.createnet.raptor.models.payload.DevicePayload;
 import org.createnet.raptor.sdk.Raptor;
@@ -23,7 +23,7 @@ public class Client {
 	}
 
 	public void run() throws IOException, IOException {
-		
+
 		Raptor raptor = Raptorbox.getRaptor();
 
 		String deviceId = "====device id====";
