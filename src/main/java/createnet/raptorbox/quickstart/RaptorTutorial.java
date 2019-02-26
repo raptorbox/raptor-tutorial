@@ -38,6 +38,8 @@ public class RaptorTutorial {
 		Device dev = quickStart.createDevice();
 		System.out.println("Device Id: " + dev.id());
 
+		String appID = "<AppID>";
+
 		// Add stream to above created device
 		quickStart.addStream(dev);
 
@@ -60,7 +62,14 @@ public class RaptorTutorial {
 		quickStart.searchByName(dev);
 
 		// Search device by user id
-		quickStart.searchByUserId(dev);
+		quickStart.searchByUserId();
+
+		if (!appID.equals("<AppID>")) {
+			// Search device by user id
+			quickStart.searchByAppId(appID);
+		} else {
+			System.out.println("Please provide app ID to search or create a new Application in Raptorbox");
+		}
 
 		// records
 		Records records = new Records(dev);
@@ -83,7 +92,7 @@ public class RaptorTutorial {
 
 		// Create user with default role
 		quickStart.createUserWithDefaultRole(raptor);
-		
+
 		// Search and delete the user
 		quickStart.searchAndDeleteUser(raptor);
 
@@ -203,7 +212,7 @@ public class RaptorTutorial {
 	}
 
 	// search devices by userId
-	public void searchByUserId(Device device) {
+	public void searchByUserId() {
 
 		Raptor raptor = Raptorbox.getRaptor();
 
@@ -219,6 +228,21 @@ public class RaptorTutorial {
 			System.out.println(dev.getUserId());
 		}
 
+	}
+
+	// search devices by userId
+	public void searchByAppId(String appID) {
+
+		Raptor raptor = Raptorbox.getRaptor();
+
+		DeviceQuery q = new DeviceQuery();
+		q.domain.match(appID);
+
+		System.out.println("Searching for " + q.toJSON().toString());
+
+		PageResponse<Device> results = raptor.Inventory().search(q);
+
+		System.out.println("Search devices by APP Id: " + results.getContent().size());
 	}
 
 	public void appTutorial(Raptor raptor) {
@@ -314,7 +338,7 @@ public class RaptorTutorial {
 		newUser.setOwnerId(raptor.Auth().getUser().getId());
 		raptor.Admin().User().create(newUser);
 	}
-	
+
 	public void searchAndDeleteUser(Raptor raptor) {
 		Map<String, Object> page = new HashMap<String, Object>();
 		page.put("page", 1);
@@ -322,8 +346,8 @@ public class RaptorTutorial {
 		Map<String, Object> query = new HashMap<String, Object>();
 		query.put("username", "test_user_with_roles");
 		PageResponse<User> list = raptor.Admin().User().list(query, page);
-		for(User u: list.getContent()) {
-			if(u.getUsername().equals("test_user_with_roles")) {
+		for (User u : list.getContent()) {
+			if (u.getUsername().equals("test_user_with_roles")) {
 				raptor.Admin().User().delete(u.getId());
 			}
 		}
